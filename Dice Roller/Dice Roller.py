@@ -24,27 +24,56 @@ class DiceRoller:
     def __init__(self,root):
         
         self.root=root
-         
+        
+        # Title of the window
+        self.root.title("DICE ROLLER")
+        # Set icon
+        self.root.iconbitmap('button icons/icon.ico')
+        self.root.geometry('800x400')
+    
         #%% MENU BAR 
         CreateMenuBar(self,root)
                 
         #%% CREATE FRAMES
-        self.topFrame = ttk.Frame(root)
+        borderColor = 'tan'
+        
+        self.headerFrame = Frame(root)
+        self.headerFrame.pack(side=TOP,fill=X)
+        self.headerFrame.config(relief=RIDGE,bg=borderColor,height=30)     
+        
+        self.leftFrame = Frame(root)
+        self.leftFrame.pack(side=LEFT,fill=Y)
+        self.leftFrame.config(relief=RIDGE,bg=borderColor,width=30) 
+        
+        self.rightFrame = Frame(root)
+        self.rightFrame.pack(side=RIGHT,fill=Y)
+        self.rightFrame.config(relief=RIDGE,bg=borderColor,width=30) 
+        
+        self.topFrame = Frame(root)
         self.topFrame.config(relief=RIDGE,
                              height=300,
                              width=300)
         self.topFrame.pack(fill=X)
         
-        self.bottomFrame = ttk.Frame(root)
+        self.bottomFrame = Frame(root)
         self.bottomFrame.pack()
         self.bottomFrame.config(relief=FLAT,
                                 height=500,
                                 width=350)    
 
+        self.settingsFrame = Frame(root)
+        self.settingsFrame.pack(fill=BOTH)
+        self.settingsFrame.config(relief=RIDGE,bd=4,bg='gray')
+        
+        self.copyrightFrame = Frame(root)
+        self.copyrightFrame.pack(fill=BOTH,side=BOTTOM)
+        self.copyrightFrame.config(relief=RIDGE,bg=borderColor,height=30)
 
+        
+        
         #%% CREATE THE WINDOW LABEL
         #FRAME FOR LABELS        
-        self.label = ttk.Label(self.topFrame, text = 'Welcome')
+        self.label = ttk.Label(self.topFrame, text = 'Welcome to the dice generator!')
         self.label.pack()
         
         #%% CREATE DICE BUTTONS
@@ -199,6 +228,12 @@ class DiceRoller:
                                         width=self.entryWidth)
         self.upperRanLimEntry.grid(row=self.randRow2,
                                     column=self.randCol+2)
+        
+        #checkboxes
+        self.ageVar = IntVar()
+        self.ageCheckbox = Checkbutton(self.settingsFrame,text='I am 18 years or older',variable=self.ageVar)
+        self.ageCheckbox.pack()
+        
     #%% DICE ROLLER METHODS    
         
     def rollDX(self,i,output=None):
@@ -208,6 +243,8 @@ class DiceRoller:
         self.diceEntry = self.diceEntries[i]
         self.listResultLabel = self.listResults[i]
         
+        self.ageResult = self.ageVar.get()
+        
         #max roll of dice
         max_sides=int(self.currentDiceName.strip('D'))
         #get number of dice from input
@@ -215,20 +252,40 @@ class DiceRoller:
         #check if dice number is blank
         if numDice=='':
             numDice=0
-            #update label saying you have rolled dice            
-            rollText = 'Fill the field ya lil bitch'
-            self.label.config(text=rollText)
-            self.label.config(wraplength = 250,
-                              justify = CENTER,
-                              foreground = 'black',
-                              background = 'white',
-                              font = ('Courier',18))
             
-            dicePhoto = PhotoImage(file = 'button icons/angryface.gif')
-            dicePhoto = dicePhoto.subsample(5,5)
-            self.label.img = dicePhoto
-            self.label.config(image=dicePhoto,
-                              compound = 'left')
+            if self.ageResult == 1:
+            
+                #update label saying you have rolled dice            
+                rollText = 'You left it blank you idiot'
+                self.label.config(text=rollText)
+                self.label.config(wraplength = 350,
+                                  justify = CENTER,
+                                  foreground = 'red',
+                                  background = 'black',
+                                  font = ('Kristen ITC',24))
+                
+                dicePhoto = PhotoImage(file = 'button icons/dwight.png')
+                dicePhoto = dicePhoto.subsample(5,5)
+                self.label.img = dicePhoto
+                self.label.config(image=dicePhoto,
+                                  compound = 'left')
+                
+            else: 
+                #update label saying you have rolled dice            
+                rollText = 'Please fill the blank.'
+                self.label.config(text=rollText)
+                self.label.config(wraplength = 350,
+                                  justify = CENTER,
+                                  foreground = 'black',
+                                  background = 'pink',
+                                  font = ('Kristen ITC',24))
+                
+                dicePhoto = PhotoImage(file = 'button icons/dwight2.png')
+                dicePhoto = dicePhoto.subsample(5,5)
+                self.label.img = dicePhoto
+                self.label.config(image=dicePhoto,
+                                  compound = 'left')
+                
             return
         else:
             numDice = int(numDice)
@@ -247,11 +304,11 @@ class DiceRoller:
             #update label saying you have rolled dice            
             rollText = 'You have rolled '+str(numDice)+' '+ self.currentDiceName +'s.'
             self.label.config(text=rollText)
-            self.label.config(wraplength = 250,
+            self.label.config(wraplength = 350,
                               justify = CENTER,
                               foreground = 'black',
                               background = 'white',
-                              font = ('Courier',18))
+                              font = ('Kristen ITC',18))
             
             dicePhoto = PhotoImage(file = self.dicePics[i])
             dicePhoto = dicePhoto.subsample(5,5)
@@ -276,20 +333,41 @@ class DiceRoller:
             self.totals.append(self.rollDX(die,output=1))
         
         if None in self.totals:
-            #update label saying you have rolled dice            
-            rollText = 'Fill all the fields \nya lil bitch'
-            self.label.config(text=rollText)
-            self.label.config(wraplength = 250,
-                              justify = CENTER,
-                              foreground = 'red',
-                              background = 'white',
-                              font = ('Courier',18))
             
-            dicePhoto = PhotoImage(file = 'button icons/angryface.gif')
-            dicePhoto = dicePhoto.subsample(5,5)
-            self.label.img = dicePhoto
-            self.label.config(image=dicePhoto,
-                              compound = 'left')
+            self.ageResult = self.ageVar.get()
+            if self.ageResult == 1:
+            
+                #update label saying you have rolled dice            
+                rollText = 'Fill all the fields \nya lil bitch'
+                self.label.config(text=rollText)
+                self.label.config(wraplength = 350,
+                                  justify = CENTER,
+                                  foreground = 'red',
+                                  background = 'black',
+                                  font = ('Kristen ITC',24,'bold'))
+                
+                dicePhoto = PhotoImage(file = 'button icons/angryface.gif')
+                dicePhoto = dicePhoto.subsample(5,5)
+                self.label.img = dicePhoto
+                self.label.config(image=dicePhoto,
+                                  compound = 'left')
+            else:
+                
+                #update label saying you have rolled dice            
+                rollText = 'Please fill out ALL fields.'
+                self.label.config(text=rollText)
+                self.label.config(wraplength = 350,
+                                  justify = CENTER,
+                                  foreground = 'black',
+                                  background = 'pink',
+                                  font = ('Kristen ITC',24,'bold'))
+                
+                dicePhoto = PhotoImage(file = 'button icons/angryface.gif')
+                dicePhoto = dicePhoto.subsample(5,5)
+                self.label.img = dicePhoto
+                self.label.config(image=dicePhoto,
+                                  compound = 'left')
+                
             return
             
         diceTotal = sum(self.totals)
@@ -297,11 +375,11 @@ class DiceRoller:
         #update label saying you have rolled dice            
         rollText = 'You have rolled all the dice.'
         self.label.config(text=rollText)
-        self.label.config(wraplength = 250,
+        self.label.config(wraplength = 350,
                           justify = CENTER,
                           foreground = 'black',
                           background = 'white',
-                          font = ('Courier',18))
+                          font = ('Kristen ITC',18))
         dicePhoto = PhotoImage(file = 'button icons/dice.gif')
         dicePhoto = dicePhoto.subsample(5,5)
         self.label.img = dicePhoto
@@ -325,11 +403,11 @@ class DiceRoller:
         #update label saying you have rolled dice            
             rollText = 'Fields have been reset'
             self.label.config(text=rollText)
-            self.label.config(wraplength = 250,
+            self.label.config(wraplength = 350,
                               justify = CENTER,
                               foreground = 'black',
                               background = 'white',
-                              font = ('Courier',18))
+                              font = ('Kristen ITC',18))
             
         
             
@@ -343,11 +421,11 @@ class DiceRoller:
         #update label saying you have rolled dice            
         rollText = 'Fields have been filled with \nrandom values.'
         self.label.config(text=rollText)
-        self.label.config(wraplength = 250,
+        self.label.config(wraplength = 350,
                           justify = CENTER,
                           foreground = 'black',
                           background = 'white',
-                          font = ('Courier',18))
+                          font = ('Kristen ITC',18))
             
     def fillRandomBetween(self):
         self.upperRanLim = self.upperRanLimEntry.get()
@@ -366,11 +444,11 @@ class DiceRoller:
         #update label saying you have rolled dice            
         rollText = ('Fields have been filled with \nrandom values between '+str(self.lowerRanLim)+' and '+str(self.upperRanLim))
         self.label.config(text=rollText)
-        self.label.config(wraplength = 250,
+        self.label.config(wraplength = 350,
                           justify = CENTER,
                           foreground = 'black',
                           background = 'white',
-                          font = ('Courier',18))
+                          font = ('Kristen ITC',18))
         
     def plusOne(self,i):        
         self.currentDiceName = self.diceNames[i]
@@ -414,7 +492,7 @@ class DiceRoller:
         #delete value
         self.diceEntry.delete(0,END)
         #update value
-        updatedEntryValue = 0
+        updatedEntryValue = ''
         self.diceEntry.insert(0,updatedEntryValue)
             
     #%% MENU BAR FUNCTIONS, ETC
