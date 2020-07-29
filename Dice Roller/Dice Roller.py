@@ -16,6 +16,7 @@ from tkinter import *
 from tkinter import ttk
 from functools import partial
 import numpy as np
+from addMenuBar import CreateMenuBar
 
 
 class DiceRoller:
@@ -25,50 +26,7 @@ class DiceRoller:
         self.root=root
          
         #%% MENU BAR 
-        
-        # CREATE MENU BAR
-        self.menubar = Menu(root,font=("times new roman",15,"bold"),activebackground="skyblue")
-        # PUT MENU BAR ON ROOT WINDOW
-        root.config(menu=self.menubar)
-        
-        # CREATE FILE MENU
-        self.filemenu = Menu(self.menubar,font=("times new roman",12,"bold"),activebackground="skyblue",tearoff=0)
-        # ADD A 'RESET' COMMAND
-        self.filemenu.add_command(label="Reset fields",accelerator="Ctrl+R",command=self.resetFields)
-        # ADD A SEPARATOR BETWEEN EXIT AND THE REST
-        self.filemenu.add_separator()
-        # ADD EXIT COMMAND
-        self.filemenu.add_command(label="Exit",accelerator="Ctrl+E",command=self.exit)
-        # ADD FILE MENU TO MENU BAR
-        self.menubar.add_cascade(label="File", menu=self.filemenu)
-        
-        # CREATE EDIT MENU
-        self.filemenu = Menu(self.menubar,font=("times new roman",12,"bold"),activebackground="skyblue",tearoff=0)
-        # ADD A 'EXAMPLE' COMMAND
-        self.filemenu.add_command(label="Example",accelerator="Ctrl+E")
-        # ADD FILE MENU TO MENU BAR
-        self.menubar.add_cascade(label="Edit", menu=self.filemenu)
-        
-        # CREATE VIEW MENU
-        self.filemenu = Menu(self.menubar,font=("times new roman",12,"bold"),activebackground="skyblue",tearoff=0)
-        # ADD A 'EXAMPLE' COMMAND
-        self.filemenu.add_command(label="Example",accelerator="Ctrl+E")
-        # ADD FILE MENU TO MENU BAR
-        self.menubar.add_cascade(label="View", menu=self.filemenu)
-        
-        # CREATE DICE WINDOW
-        self.filemenu = Menu(self.menubar,font=("times new roman",12,"bold"),activebackground="skyblue",tearoff=0)
-        # ADD A 'EXAMPLE' COMMAND
-        self.filemenu.add_command(label="Example",accelerator="Ctrl+E")
-        # ADD FILE MENU TO MENU BAR
-        self.menubar.add_cascade(label="Dice", menu=self.filemenu)
-        
-        # CREATE SETTINGS WINDOW
-        self.filemenu = Menu(self.menubar,font=("times new roman",12,"bold"),activebackground="skyblue",tearoff=0)
-        # ADD A 'EXAMPLE' COMMAND
-        self.filemenu.add_command(label="Example",accelerator="Ctrl+E")
-        # ADD FILE MENU TO MENU BAR
-        self.menubar.add_cascade(label="Settings", menu=self.filemenu)
+        CreateMenuBar(self,root)
                 
         #%% CREATE FRAMES
         self.topFrame = ttk.Frame(root)
@@ -83,6 +41,7 @@ class DiceRoller:
                                 height=500,
                                 width=350)    
 
+
         #%% CREATE THE WINDOW LABEL
         #FRAME FOR LABELS        
         self.label = ttk.Label(self.topFrame, text = 'Welcome')
@@ -90,12 +49,18 @@ class DiceRoller:
         
         #%% CREATE DICE BUTTONS
         #DEFINE VARIABLES FOR DICE BUTTONS
-        #ROWS AND COLUMNS
-        self.rollCol = 2
-        self.rollRowStart = 2
-        self.entryCol = self.rollCol-1
+        #COL
+        self.descCol = 0
+        self.setZeroCol = self.descCol+1
+        self.minusCol = self.setZeroCol+1
+        self.plusCol = self.minusCol+1
+        self.entryCol = self.plusCol+1
+        self.rollCol = self.entryCol+1
         self.answerCol = self.rollCol+1
-        self.descCol = self.entryCol-1
+        self.listResultCol = self.answerCol+1
+        
+        #ROW
+        self.rollRowStart = 2
 
         
         #FRAMES
@@ -109,6 +74,7 @@ class DiceRoller:
         self.diceButtons = []
         self.diceLabels = []
         self.diceDescs = []
+        self.listResults = []
         
         #DICE
         self.diceNames = ['D4','D6','D8','D10','D12','D20','D100']
@@ -139,9 +105,14 @@ class DiceRoller:
             
             #CREATE LABELS FOR ANSWERS
             self.diceLabel = ttk.Label(self.rollButtonFrame, 
-                                            text = 'Total: 0')
+                                            text = '-')
             self.diceLabel.grid(row=self.currentRow,
                                     column=self.answerCol)
+            
+            self.listResultLabel = ttk.Label(self.rollButtonFrame,
+                                         text='[]:')
+            self.listResultLabel.grid(row=self.currentRow,
+                                    column=self.listResultCol)
             
             #CREATE LABELS FOR DESCRIPTIONS
             self.diceDesc = ttk.Label(self.rollButtonFrame, 
@@ -151,17 +122,39 @@ class DiceRoller:
                                    column=self.descCol)
             
             #CREATE BUTTONS
+            #dice buttons
             self.diceButton = ttk.Button(self.rollButtonFrame, 
                                          text = self.buttonText,
                                          command = partial(self.rollDX,i))
             self.diceButton.grid(row=self.currentRow,
                                      column=self.rollCol)
             
+            #zero, plus, minus buttons
+            self.zeroButton = ttk.Button(self.rollButtonFrame, 
+                                         text = 'zero',
+                                         width=5,
+                                         command=partial(self.setZero,i))
+            self.zeroButton.grid(row=self.currentRow,
+                                 column=self.setZeroCol)
+            self.minusButton = ttk.Button(self.rollButtonFrame, 
+                                         text = '-',
+                                         width=3,
+                                         command=partial(self.minusOne,i))
+            self.minusButton.grid(row=self.currentRow,
+                                 column=self.minusCol)
+            self.plusButton = ttk.Button(self.rollButtonFrame, 
+                                         text = '+',
+                                         width=3,
+                                         command=partial(self.plusOne,i))
+            self.plusButton.grid(row=self.currentRow,
+                                 column=self.plusCol)
+            
             #ADD THINGS TO LISTS
             self.diceEntries.append(self.diceEntry)
             self.diceButtons.append(self.diceButton)
             self.diceLabels.append(self.diceLabel)
             self.diceDescs.append(self.diceDesc)
+            self.listResults.append(self.listResultLabel)
             
         #OTHER BUTTONS AND STUFF
         #TOTAL
@@ -171,7 +164,7 @@ class DiceRoller:
                                                             command = self.rollAll)     
         self.TotalButton.grid(row=self.totalRow, column = self.rollCol-1, columnspan=2,)
         
-        self.TotalLabel = ttk.Label(self.rollButtonFrame, text = 'Total: 0')
+        self.TotalLabel = ttk.Label(self.rollButtonFrame, text = '-')
         self.TotalLabel.grid(row=self.totalRow, column = self.answerCol)
         
         #RESET
@@ -213,6 +206,7 @@ class DiceRoller:
         self.currentDiceName = self.diceNames[i]
         self.diceLabel = self.diceLabels[i]
         self.diceEntry = self.diceEntries[i]
+        self.listResultLabel = self.listResults[i]
         
         #max roll of dice
         max_sides=int(self.currentDiceName.strip('D'))
@@ -221,15 +215,33 @@ class DiceRoller:
         #check if dice number is blank
         if numDice=='':
             numDice=0
+            #update label saying you have rolled dice            
+            rollText = 'Fill the field ya lil bitch'
+            self.label.config(text=rollText)
+            self.label.config(wraplength = 250,
+                              justify = CENTER,
+                              foreground = 'black',
+                              background = 'white',
+                              font = ('Courier',18))
+            
+            dicePhoto = PhotoImage(file = 'button icons/angryface.gif')
+            dicePhoto = dicePhoto.subsample(5,5)
+            self.label.img = dicePhoto
+            self.label.config(image=dicePhoto,
+                              compound = 'left')
+            return
         else:
             numDice = int(numDice)
         #initiate dice total    
-        self.diceTotal = 0
+        self.diceTotal = []
         
         #roll each dice, add up total
         for eachDice in range(numDice):
             diceRoll = np.random.randint(1,max_sides+1)
-            self.diceTotal = self.diceTotal+diceRoll
+            self.diceTotal.append(diceRoll)
+            
+        self.diceTotalList = self.diceTotal
+        self.diceTotal = sum(self.diceTotal)
         
         if output==None:
             #update label saying you have rolled dice            
@@ -246,10 +258,12 @@ class DiceRoller:
             self.label.img = dicePhoto
             self.label.config(image=dicePhoto,
                               compound = 'left')
+            
         
         #update label with result
-        answerText = 'Answer: '+str(self.diceTotal)
+        answerText = 'Total: '+str(self.diceTotal)
         self.diceLabel.config(text = answerText)
+        self.listResultLabel.config(text=str(sorted(self.diceTotalList)))
         
         if output==1:
             return self.diceTotal
@@ -260,6 +274,23 @@ class DiceRoller:
         
         for die in range(len(self.diceNames)):
             self.totals.append(self.rollDX(die,output=1))
+        
+        if None in self.totals:
+            #update label saying you have rolled dice            
+            rollText = 'Fill all the fields \nya lil bitch'
+            self.label.config(text=rollText)
+            self.label.config(wraplength = 250,
+                              justify = CENTER,
+                              foreground = 'red',
+                              background = 'white',
+                              font = ('Courier',18))
+            
+            dicePhoto = PhotoImage(file = 'button icons/angryface.gif')
+            dicePhoto = dicePhoto.subsample(5,5)
+            self.label.img = dicePhoto
+            self.label.config(image=dicePhoto,
+                              compound = 'left')
+            return
             
         diceTotal = sum(self.totals)
         
@@ -271,7 +302,7 @@ class DiceRoller:
                           foreground = 'black',
                           background = 'white',
                           font = ('Courier',18))
-        dicePhoto = PhotoImage(file = r'C:\Users\M58527\Documents\Training\GUI\button icons\dice.gif')
+        dicePhoto = PhotoImage(file = 'button icons/dice.gif')
         dicePhoto = dicePhoto.subsample(5,5)
         self.label.img = dicePhoto
         self.label.config(image=dicePhoto,
@@ -285,6 +316,22 @@ class DiceRoller:
         for i in range(len(self.diceNames)):
             self.diceEntry = self.diceEntries[i]
             self.diceEntry.delete(0,END)
+            #update label saying you have rolled dice 
+            rollText = '-'
+            self.diceLabels[i].config(text=rollText)
+            self.TotalLabel.config(text='')
+            self.listResults[i].config(text='[]')
+            
+        #update label saying you have rolled dice            
+            rollText = 'Fields have been reset'
+            self.label.config(text=rollText)
+            self.label.config(wraplength = 250,
+                              justify = CENTER,
+                              foreground = 'black',
+                              background = 'white',
+                              font = ('Courier',18))
+            
+        
             
     def fillRandom(self):
             
@@ -292,6 +339,15 @@ class DiceRoller:
             self.diceEntry = self.diceEntries[i]
             self.diceEntry.delete(0,END)
             self.diceEntry.insert(0,np.random.randint(0,20))
+            
+        #update label saying you have rolled dice            
+        rollText = 'Fields have been filled with \nrandom values.'
+        self.label.config(text=rollText)
+        self.label.config(wraplength = 250,
+                          justify = CENTER,
+                          foreground = 'black',
+                          background = 'white',
+                          font = ('Courier',18))
             
     def fillRandomBetween(self):
         self.upperRanLim = self.upperRanLimEntry.get()
@@ -306,6 +362,60 @@ class DiceRoller:
             self.diceEntry = self.diceEntries[i]
             self.diceEntry.delete(0,END)
             self.diceEntry.insert(0,np.random.randint(self.lowerRanLim,self.upperRanLim))
+        
+        #update label saying you have rolled dice            
+        rollText = ('Fields have been filled with \nrandom values between '+str(self.lowerRanLim)+' and '+str(self.upperRanLim))
+        self.label.config(text=rollText)
+        self.label.config(wraplength = 250,
+                          justify = CENTER,
+                          foreground = 'black',
+                          background = 'white',
+                          font = ('Courier',18))
+        
+    def plusOne(self,i):        
+        self.currentDiceName = self.diceNames[i]
+        self.diceLabel = self.diceLabels[i]
+        self.diceEntry = self.diceEntries[i]
+        
+        #get current value
+        currentEntryValue = self.diceEntry.get()
+        if currentEntryValue=='':
+            currentEntryValue=0
+        #delete value
+        self.diceEntry.delete(0,END)
+        #update value
+        updatedEntryValue = int(currentEntryValue)+1
+        self.diceEntry.insert(0,updatedEntryValue)
+        
+    def minusOne(self,i):
+        self.currentDiceName = self.diceNames[i]
+        self.diceLabel = self.diceLabels[i]
+        self.diceEntry = self.diceEntries[i]
+        
+        #get current value
+        currentEntryValue = self.diceEntry.get()
+        if currentEntryValue=='':
+            currentEntryValue=0
+        #delete value
+        self.diceEntry.delete(0,END)
+        #update value
+        updatedEntryValue = int(currentEntryValue)-1
+        self.diceEntry.insert(0,updatedEntryValue)
+        
+    def setZero(self,i):
+        self.currentDiceName = self.diceNames[i]
+        self.diceLabel = self.diceLabels[i]
+        self.diceEntry = self.diceEntries[i]
+        
+        #get current value
+        currentEntryValue = self.diceEntry.get()
+        if currentEntryValue=='':
+            currentEntryValue=0
+        #delete value
+        self.diceEntry.delete(0,END)
+        #update value
+        updatedEntryValue = 0
+        self.diceEntry.insert(0,updatedEntryValue)
             
     #%% MENU BAR FUNCTIONS, ETC
     # Defining Exit Funtion
